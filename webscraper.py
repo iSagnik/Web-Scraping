@@ -3,8 +3,11 @@ import time
 import requests
 from selenium import webdriver
 
-
-def fetch_image_urls(query: str, max_links_to_fetch: int, wd: webdriver, sleep_between_interactions: int = 1):
+'''
+Builds image query and stores thumbnails from the results
+Returns list of image urls
+'''
+def fetch_image_urls(query: str, urls_seen: object, max_links_to_fetch: int, wd: webdriver, sleep_between_interactions: int = 1):
     def scroll_to_end(wd):
         wd.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(sleep_between_interactions)
@@ -39,8 +42,10 @@ def fetch_image_urls(query: str, max_links_to_fetch: int, wd: webdriver, sleep_b
             # extract image urls
             actual_images = wd.find_elements_by_css_selector('img.n3VNCb')
             for actual_image in actual_images:
-                if actual_image.get_attribute('src') and 'http' in actual_image.get_attribute('src'):
-                    image_urls.add(actual_image.get_attribute('src'))
+                url = actual_image.get_attribute('src')
+                if url and 'http' in url and (url not in urls_seen):
+                    image_urls.add(url)
+                    urls_seen.add(url)
 
             image_count = len(image_urls)
 
@@ -51,16 +56,18 @@ def fetch_image_urls(query: str, max_links_to_fetch: int, wd: webdriver, sleep_b
             print("Found:", len(image_urls), "image links, looking for more ...")
             time.sleep(30)
             return
-            load_more_button = wd.find_element_by_css_selector(".mye4qd")
-            if load_more_button:
-                wd.execute_script("document.querySelector('.mye4qd').click();")
+            # load_more_button = wd.find_element_by_css_selector(".mye4qd")
+            # if load_more_button:
+            #     wd.execute_script("document.querySelector('.mye4qd').click();")
 
         # move the result startpoint further down
         results_start = len(thumbnail_results)
 
     return image_urls
 
-
+'''
+Helper function to save an image in the folder. Image retrieved from the web from its url.
+'''
 def persist_image(folder_path:str,url:str, counter):
     try:
         image_content = requests.get(url).content
@@ -77,6 +84,17 @@ def persist_image(folder_path:str,url:str, counter):
         print(f"ERROR - Could not save {url} - {e}")
 
 
+def download_image(url):
+    try:
+        image_content = requests.get(url).content
+
+    except Exception as e:
+        print(f"ERROR - Could not download {url} - {e}")
+
+    return image_content 
+'''
+Driver function to search for image urls; retrieve actual images and store in the filesystem
+'''
 def search_and_download(search_term: str, driver_path: str, target_path='./images', number_images=5):
     target_folder = os.path.join(target_path, '_'.join(search_term.lower().split(' ')))
 
