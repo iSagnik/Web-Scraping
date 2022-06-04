@@ -4,17 +4,25 @@ from selenium import webdriver
 from PIL import Image
 
 DRIVER_PATH = '.Desktop/Project/Web-Scraping/chromedriver'
+FOLDER_PATH = './images'
 THRESHOLD = 70
 
-def main():
-    query = ""
-    img_name = ""
-    min_img = 10
+def user_inputs():
+    query = input("Enter search term")
+    img_path = input("Enter image path")
+    min_img = int( input("Enter images to be found") )
 
-    sample_img = Image.open(img_name)
+    return (query, img_path, min_img)
+
+
+def main():
+    query, img_path, min_img = user_inputs()
+
+    sample_img = Image.open(img_path)
 
     images = run_script(query, sample_img, min_img)
     #do something with images
+    webscraper.store_images(images, FOLDER_PATH)
 
 def run_script(query, sample_img, min_img):
     foundImages = set()

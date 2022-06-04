@@ -1,4 +1,5 @@
 import os
+from re import I
 import time
 import requests
 from selenium import webdriver
@@ -82,6 +83,17 @@ def persist_image(folder_path:str,url:str, counter):
         print(f"SUCCESS - saved {url} - as {folder_path}")
     except Exception as e:
         print(f"ERROR - Could not save {url} - {e}")
+
+
+def store_images(images, folder_path):
+    for image, count in enumerate(images):
+        try:
+            f = open(os.path.join(folder_path, 'jpg' + "_" + str(len(images)) + ".jpg"), 'wb')
+            f.write(image)
+            f.close()
+            # print(f"SUCCESS - saved {url} - as {folder_path}")
+        except Exception as e:
+            print(f"ERROR - Could not save image: {count} - {e}")
 
 
 def download_image(url):
