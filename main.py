@@ -1,15 +1,19 @@
 import webscraper
+import model
 from selenium import webdriver
+from PIL import Image
 
 DRIVER_PATH = '.Desktop/Project/Web-Scraping/chromedriver'
 THRESHOLD = 70
 
 def main():
     query = ""
-    img_url = ""
+    img_name = ""
     min_img = 10
 
-    images = run_script(query, img_url, min_img)
+    sample_img = Image.open(img_name)
+
+    images = run_script(query, sample_img, min_img)
     #do something with images
 
 def run_script(query, sample_img, min_img):
@@ -30,13 +34,10 @@ def check_similarity(images_to_check, sample_img, foundImages):
         image_file = webscraper.download_image(image)
 
         #check similarity
-        score = get_similarity_score(sample_img, image_file)
+        score = model.get_similarity_score(sample_img, image_file)
 
         if score >= THRESHOLD:
             foundImages.add(image_file)
-
-def get_similarity_score(sample_img, image_file):
-    pass
 
 if __name__== "__main__":
     main()
